@@ -15,7 +15,6 @@ const handleLogin = async () => {
   loading.value = true;
   try {
     await userStore.login(form);
-    await userStore.fetchUserInfo();
     uni.showToast({ title: '登录成功', icon: 'success' });
     uni.switchTab({ url: '/pages/index/index' });
   } catch {

@@ -10,8 +10,13 @@ interface RequestOptions {
   header?: Record<string, string>;
 }
 
-/** 后端基础地址：生产环境改为真实域名，开发环境可在 manifest/h5 devServer 代理 */
-const BASE_URL = 'https://api.example.com';
+/**
+ * 后端基础地址：通过 .env 的 VITE_API_BASE 配置。
+ * - H5：可设为相对地址 '' 并配合 vite.config 的 devServer 代理到 platform_java(8081)
+ * - 微信小程序：必须设为可访问的绝对地址（如 http://192.168.x.x:8081），
+ *   并在 manifest 关闭 urlCheck（开发期）。
+ */
+const BASE_URL = (import.meta.env.VITE_API_BASE as string) || 'http://localhost:8081';
 
 function authHeader(): Record<string, string> {
   const token = storage.get<string>('token');

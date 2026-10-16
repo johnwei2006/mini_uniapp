@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onShow, ref } from 'vue';
 import { useUserStore } from '@/store/modules/user';
+import { listDevices } from '@/api/devices';
 
 const userStore = useUserStore();
-const count = ref(0);
+const deviceCount = ref(0);
 
-const goLogin = () => {
-  uni.navigateTo({ url: '/pages/login/login' });
-};
+onShow(async () => {
+  if (userStore.isLogin) {
+    try {
+      const d = await listDevices();
+      deviceCount.value = d.data?.length ?? 0;
+    } catch {
+      /* 忽略 */
+    }
+  }
+});
+
+const goDevices = () => uni.switchTab({ url: '/pages/devices/devices' });
+const goLogin = () => uni.navigateTo({ url: '/pages/login/login' });
 </script>
 
 <template>
   <view class="container">
-    <text class="title">uni-app 首页</text>
+    <text class="title">IoT 平台小程序</text>
     <text>当前用户：{{ userStore.userInfo?.nickname || '未登录' }}</text>
-    <view class="btn btn-primary" hover-class="btn-hover" @tap="count++">
-      点击次数：{{ count }}
+    <view class="card">
+      <text class="big">{{ deviceCount }}</text>
+      <text class="label">设备总数</text>
     </view>
-    <view class="btn" hover-class="btn-hover" @tap="goLogin">去登录</view>
+    <view class="btn btn-primary" hover-class="btn-hover" @tap="goDevices">查看设备</view>
+    <view class="btn" hover-class="btn-hover" v-if="!userStore.isLogin" @tap="goLogin">去登录</view>
   </view>
 </template>
 
@@ -32,6 +45,24 @@ const goLogin = () => {
   font-size: 40rpx;
   font-weight: bold;
   color: #007aff;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+.big {
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #007aff;
+}
+.label {
+  color: #999;
+  font-size: 26rpx;
 }
 .btn {
   height: 80rpx;
